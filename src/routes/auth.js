@@ -18,11 +18,17 @@ router.post("/login", (req, res) => {
 router.post("/validatetoken", (req, res) => {
     const token = req.body.token;
 
-    jwt.verify(token, process.env.JWT_SECRET, err => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             res.status(401).json({});
         } else {
-            res.json({});
+            User.findById(decoded.userId).then(user => {
+                if (user) {
+                    res.json({ status: "ok", user: user.toAuthJSON(), token: user.generateJWT() });
+                } else {
+                    res.status(401).json({});
+                }
+            });
         }
     });
 });
