@@ -6,6 +6,7 @@ import cors from "cors";
 import auth from "./routes/auth";
 import users from "./routes/users";
 import workspaces from "./routes/workspaces";
+import projects from "./routes/projects";
 
 dotenv.config();
 
@@ -22,5 +23,6 @@ mongoose.connect(process.env.MONGO_DB_URL, {
 app.use("/api/auth", auth);
 app.use("/api/users", users);
 app.use("/api/workspaces", workspaces);
+app.use("/api/projects", projects);
 
 app.listen(process.env.PORT, () => console.log(`App started on port ${process.env.PORT}`));
