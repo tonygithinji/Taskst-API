@@ -1,6 +1,7 @@
 import express from "express";
 import Task from "../models/Task";
 import Project from "../models/Project";
+import Workspace from "../models/Workspace";
 import authenticate from "../middleware/authenticated";
 
 const router = express.Router();
@@ -13,7 +14,14 @@ router.post("/", (req, res) => {
     newTask.projectId = projectId;
     newTask.workspaceId = workspaceId;
     newTask.save()
-        .then((createdTask) => res.json({ status: "ok", task: createdTask }))
+        .then((createdTask) => {
+            const projectPromise = Project.findByIdAndUpdate(projectId).update({ $inc: { tasksNumber: 1 } });
+            const workspacePromise = Workspace.findByIdAndUpdate(workspaceId).update({ $inc: { tasksNumber: 1 } });
+
+            Promise.all([projectPromise, workspacePromise])
+                .then(() => res.json({ status: "ok", task: createdTask }))
+                .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
+        })
         .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
 });
 

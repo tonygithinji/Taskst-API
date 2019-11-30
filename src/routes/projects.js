@@ -1,6 +1,7 @@
 import express from "express";
 import Project from "../models/Project";
 import authenticate from "../middleware/authenticated";
+import Workspace from "../models/Workspace";
 
 const router = express.Router();
 router.use(authenticate);
@@ -12,7 +13,11 @@ router.post("/", (req, res) => {
     project.name = name;
     project.workspaceId = workspaceId;
     project.save()
-        .then(doc => res.json({ status: "ok", project: doc }))
+        .then(doc => {
+            Workspace.findByIdAndUpdate(workspaceId).update({ $inc: { projectsNumber: 1 } })
+                .then(() => res.json({ status: "ok", project: doc }))
+                .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
+        })
         .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
 });
 

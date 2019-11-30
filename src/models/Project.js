@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 const schema = mongoose.Schema({
     name: { type: String, required: true },
-    tasks_num: { type: Number, default: 0 },
-    completed_tasks: { type: Number, default: 0 },
+    tasksNumber: { type: Number, default: 0 },
+    completedTasks: { type: Number, default: 0 },
     complete: { type: Boolean, default: false },
     workspaceId: { type: String, required: true },
 }, { timestamps: true });

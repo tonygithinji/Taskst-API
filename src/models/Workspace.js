@@ -4,10 +4,10 @@ const schema = new mongoose.Schema({
     name: { type: String, required: true },
     description: { type: String, required: false },
     color: { type: String, required: true },
-    projects_num: { type: Number, default: 0 },
-    tasks_num: { type: Number, default: 0 },
-    completed_projects: { type: Number, default: 0 },
-    completed_tasks: { type: Number, default: 0 },
+    projectsNumber: { type: Number, default: 0 },
+    tasksNumber: { type: Number, default: 0 },
+    completedProjects: { type: Number, default: 0 },
+    completedTasks: { type: Number, default: 0 },
     userId: { type: String, required: true }
 }, { timestamps: true });
 

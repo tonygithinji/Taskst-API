@@ -17,4 +17,10 @@ router.post("/", (req, res) => {
         .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
 });
 
+router.get("/:workspaceId", (req, res) => {
+    const workspaceId = req.params.workspaceId;
+
+    Workspace.findById(workspaceId).then(workspace => res.json({ status: "ok", workspace }));
+});
+
 export default router;
