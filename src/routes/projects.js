@@ -29,4 +29,11 @@ router.get("/:workspaceId", (req, res) => {
         .then(projects => res.json({ status: "ok", projects }))
 });
 
+router.post("/update", (req, res) => {
+    const { projectName, projectId } = req.body.data;
+    Project.findByIdAndUpdate(projectId, { name: projectName }, { new: true })
+        .then(project => res.json({ status: "ok", project }))
+        .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
+});
+
 export default router;
