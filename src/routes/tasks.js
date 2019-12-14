@@ -35,4 +35,11 @@ router.get("/:projectId", (req, res) => {
         .then(([project, tasks]) => res.json({ status: "ok", tasks, project }));
 });
 
+router.post("/update", (req, res) => {
+    const { task, taskId } = req.body.data;
+    Task.findByIdAndUpdate(taskId, { task }, { new: true })
+        .then(updatedTask => res.json({ status: "ok", task: updatedTask }))
+        .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
+});
+
 export default router;
