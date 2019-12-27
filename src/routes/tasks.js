@@ -42,4 +42,18 @@ router.post("/update", (req, res) => {
         .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
 });
 
+router.post("/delete", (req, res) => {
+    const { taskId, projectId, workspaceId } = req.body.data;
+    Task.findByIdAndDelete(taskId)
+        .then(() => {
+            const projectPromise = Project.findByIdAndUpdate(projectId).update({ $inc: { tasksNumber: -1 } });
+            const workspacePromise = Workspace.findByIdAndUpdate(workspaceId).update({ $inc: { tasksNumber: -1 } });
+
+            Promise.all([projectPromise, workspacePromise])
+                .then(() => res.json({ status: "ok" }))
+                .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
+        })
+        .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
+});
+
 export default router;
