@@ -29,9 +29,10 @@ router.post("/", (req, res) => {
 // Fetch all tasks for a particular project
 router.get("/:projectId", (req, res) => {
     const projectId = req.params.projectId;
+    const complete = (req.query.complete === "true");
 
     const projectPromise = Project.findById(projectId);
-    const tasksPromise = Task.find({ projectId }).limit(10);
+    const tasksPromise = Task.find({ projectId, complete }).limit(10);
 
     Promise.all([projectPromise, tasksPromise])
         .then(([project, tasks]) => res.json({ status: "ok", tasks, project }));
