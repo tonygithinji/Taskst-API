@@ -1,4 +1,5 @@
 import express from "express";
+import moment from "moment";
 import Task from "../models/Task";
 import Project from "../models/Project";
 import Workspace from "../models/Workspace";
@@ -75,6 +76,78 @@ router.post("/complete", (req, res) => {
                 .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
         })
         .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
+});
+
+router.post("/graphdata", (req, res) => {
+    const { period, periodStart, duration, workspaceId } = req.body.data;
+    const promises = [];
+    const periods = [];
+
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < duration; i++) {
+        let date;
+        if (period === "week") {
+            date = moment(periodStart).add(i, "days");
+            periods.push(date.clone().format("ddd"));
+        } else if (period === "month") {
+            date = moment(periodStart).add(i, "days");
+            periods.push(date.clone().format("D"));
+        } else if (period === "year") {
+            date = moment(periodStart).add(i, "months");
+            periods.push(date.clone().format("MMM"))
+        }
+        const start = new Date(date.clone().startOf("day").toISOString(true));
+        const end = new Date(date.clone().endOf("day").toISOString(true));
+
+        promises.push(
+            Task.aggregate([
+                {
+                    $match: {
+                        createdAt: { $gte: start, $lte: end },
+                        workspaceId
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$complete",
+                        count: { $sum: 1 }
+                    }
+                }
+            ])
+        )
+    }
+
+    Promise.all(promises)
+        .then(data => {
+            const result = [];
+            data.forEach((row, index) => {
+                if (row.length > 0) {
+                    const r = {};
+                    if (row[0]) {
+                        if (row[0]._id) {
+                            r.complete = row[0].count;
+                        } else {
+                            r.incomplete = row[0].count;
+                        }
+                    }
+                    if (row[1]) {
+                        if (row[1]._id) {
+                            r.complete = row[1].count;
+                        } else {
+                            r.incomplete = row[1].count;
+                        }
+                    }
+                    if (!r.complete) r.complete = 0;
+                    if (!r.incomplete) r.incomplete = 0;
+                    r.day = periods[index];
+                    result.push(r);
+                } else {
+                    result.push({ day: periods[index], complete: 0, incomplete: 0 });
+                }
+            });
+
+            res.json({ status: "ok", data: result });
+        });
 });
 
 export default router;

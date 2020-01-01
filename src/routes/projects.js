@@ -60,4 +60,13 @@ router.post("/delete", (req, res) => {
     });
 });
 
+router.get("/recent/:workspaceId", (req, res) => {
+    const workspaceId = req.params.workspaceId;
+
+    Project.find({ workspaceId })
+        .limit(5)
+        .sort({ updatedAt: "desc" })
+        .then(lists => res.json({ status: "ok", lists }))
+});
+
 export default router;
