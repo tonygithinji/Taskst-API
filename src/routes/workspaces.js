@@ -23,4 +23,11 @@ router.get("/:workspaceId", (req, res) => {
     Workspace.findById(workspaceId).then(workspace => res.json({ status: "ok", workspace }));
 });
 
+router.post("/update", (req, res) => {
+    const { name, description, color, workspaceId } = req.body.data;
+    Workspace.findByIdAndUpdate(workspaceId, { name, description, color })
+        .then(() => res.json({ status: "ok" }))
+        .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
+});
+
 export default router;
