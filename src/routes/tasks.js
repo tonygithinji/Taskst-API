@@ -42,7 +42,8 @@ router.get("/:projectId", (req, res) => {
 // Update a task
 router.post("/update", (req, res) => {
     const { task, taskId } = req.body.data;
-    Task.findByIdAndUpdate(taskId, { task }, { new: true })
+
+    Task.findByIdAndUpdate(taskId, task, { new: true })
         .then(updatedTask => res.json({ status: "ok", task: updatedTask }))
         .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
 });
@@ -148,6 +149,13 @@ router.post("/graphdata", (req, res) => {
 
             res.json({ status: "ok", data: result });
         });
+});
+
+router.get("/:workspaceId/starred", (req, res) => {
+    const workspaceId = req.params.workspaceId;
+    Task.find({ workspaceId, starred: true })
+        .limit(50)
+        .then(tasks => res.json({ status: "ok", tasks }));
 });
 
 export default router;
