@@ -1,6 +1,8 @@
 import express from "express";
 import Workspace from "../models/Workspace";
 import authenticate from "../middleware/authenticated";
+import Project from "../models/Project";
+import Task from "../models/Task";
 
 const router = express.Router();
 router.use(authenticate);
@@ -28,6 +30,17 @@ router.post("/update", (req, res) => {
     Workspace.findByIdAndUpdate(workspaceId, { name, description, color })
         .then(() => res.json({ status: "ok" }))
         .catch(() => res.status(400).json({ errors: { global: "An unexpected error occurred" } }));
+});
+
+router.post("/delete", (req, res) => {
+    const { workspaceId } = req.body.data;
+
+    Workspace.findByIdAndDelete(workspaceId)
+        .then(() => {
+            Project.deleteMany({ workspaceId }).then(() => { });
+            Task.deleteMany({ workspaceId }).then(() => { });
+            res.json({ status: "ok" });
+        })
 });
 
 export default router;
